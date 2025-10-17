@@ -1,0 +1,120 @@
+-- Step 1: Create the table
+CREATE TABLE departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    dept_start_date DATE
+);
+
+-- Step 2: Insert your sample data
+INSERT INTO departments (dept_id, dept_name, dept_start_date) VALUES
+(1, 'IT', '2000-02-15'),
+(2, 'CSE', '1990-06-04'),
+(3, 'ECE', '1976-09-21'),
+(4, 'EEE', '1963-12-11'),
+(5, 'MECH', '1927-01-31'),
+(6, 'CIVIL', '1879-04-25');
+
+CREATE TABLE courses (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(100),
+    credits INT,
+    dept_id INT
+);
+
+INSERT INTO courses (course_id, course_name, credits, dept_id) VALUES
+(101, 'linear algebra', 4, 1),
+(102, 'discrete', 4, 2),
+(103, 'digital logic', 3, 1),
+(104, 'statistics', 4, 2),
+(105, 'ECA', 3, 4),
+(106, 'circuit analysis', 2, 3),
+(107, 'C++', 3, 3),
+(108, 'AIML', 4, 4),
+(109, 'Eng Mechanics', 3, 5),
+(110, 'metal theory', 2, 5),
+(111, 'fluid mechanics', 3, 6);
+
+
+--staff table
+CREATE TABLE staff (
+    staff_id INT PRIMARY KEY,
+    staff_name VARCHAR(50),
+    start_date DATE,
+    retired_date DATE
+);
+
+INSERT INTO staff (staff_id, staff_name, start_date, retired_date) VALUES
+(1001, 'Sundar',  '2012-06-15', NULL),
+(1002, 'Vasu',    '2013-08-21', NULL),
+(1003, 'Durga',   '2014-01-10', '2024-03-31'),
+(1004, 'Selvan',  '2015-05-19', NULL),
+(1005, 'Kabilan', '2016-09-01', NULL),
+(1006, 'Lakshmi', '2017-02-16', '2023-11-30'),
+(1007, 'Velan',   '2018-12-05', NULL),
+(1008, 'Kanda',   '2019-07-20', NULL),
+(1009, 'Arun',    '2020-04-01', NULL),
+(1010, 'Kumar',   '2021-10-15', NULL),
+(1011, 'Rohit',   '2022-06-30', NULL),
+(1012, 'Meena',   '2023-03-15', NULL),
+(1013, 'Prakash', '2023-07-21', '2025-02-28'),
+(1014, 'Divya',   '2024-01-12', NULL),
+(1015, 'Sanjay',  '2024-04-18', NULL);
+
+
+
+
+CREATE TABLE students (
+    stu_id INT PRIMARY KEY,
+    stu_name VARCHAR(50),
+    stu_age INT,
+    dept_id INT
+);
+
+INSERT INTO students (stu_id, stu_name, stu_age, dept_id) VALUES
+(10001, 'karuppa', 18, 1),
+(10002, 'tamil', 20, 1),
+(10003, 'mari', 19, 1),
+(20001, 'adithya', 20, 2),
+(20002, 'anand', 18, 2),
+(20003, 'pravin', 19, 2),
+(30001, 'vasanth', 18, 3),
+(30002, 'mani', 20, 3),
+(30003, 'guna', 18, 3),
+(40001, 'vijay', 19, 4),
+(40002, 'viswa', 18, 4),
+(40003, 'ganesh', 19, 4),
+(50001, 'muthu', 18, 5),
+(50002, 'vignesh', 20, 5),
+(50003, 'siva', 18, 5),
+(60001, 'santhosh', 19, 6),
+(60002, 'thiru', 18, 6),
+(60003, 'ragul', 18, 6);
+
+
+CREATE TABLE staff_course (
+    staff_id INT,
+    course_id INT,
+    PRIMARY KEY (staff_id, course_id),
+    FOREIGN KEY (staff_id) REFERENCES staff(staff_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+);
+
+
+INSERT INTO staff_course (staff_id, course_id) VALUES
+(1001, 101),
+(1002, 103),
+(1003, 104),
+(1004, 102),
+(1005, 106),
+(1006, 104),
+(1007, 107),
+(1008, 108),
+(1009, 110),
+(1010, 111),
+(1011, 109),
+(1012, 105),
+(1013, 101),
+(1014, 108),
+(1015, 105);
+
+
