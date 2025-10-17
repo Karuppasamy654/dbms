@@ -1,0 +1,240 @@
+--department
+create table department(
+dept_id int,
+dept_name varchar(100) unique not null,
+constraint dept_pk primary key(dept_id)
+);
+-- Insert values into department table
+INSERT INTO department (dept_id, dept_name) VALUES
+(1, 'HR'),
+(2, 'Finance'),
+(3, 'IT'),
+(4, 'Marketing'),
+(5, 'Sales');
+ 
+
+--employees
+create table employees(
+emp_id int,
+first_name varchar(50),
+last_name varchar(50),
+dept_id int,
+salary numeric(10,2),
+hire_date date default current_date,
+constraint emp_pk primary key(emp_id),
+constraint emp_fk foreign key(dept_id) references department(dept_id)
+);
+-- Insert values into employee table
+INSERT INTO employees (emp_id, first_name, last_name, dept_id, salary) VALUES
+(101, 'Arun', 'Kumar', 1, 50000),
+(102, 'Saranya', 'Devi', 2, 60000),
+(103, 'Muthu', 'Vel', 3, 55000),
+(104, 'Kalai', 'Selvi', 4, 52000),
+(105, 'Sureash', 'Kumar', 5, 58000);
+
+
+--questions
+--query1
+create procedure insert_new_dept(
+dept_id int,
+dept_name varchar(100)
+)
+language plpgsql 
+as $$
+begin
+insert into department values(dept_id,dept_name);
+end;$$;
+
+call insert_new_dept(6,'Devlopment');
+
+ dept_id | dept_name
+---------+------------
+       1 | HR
+       2 | Finance
+       3 | IT
+       4 | Marketing
+       5 | Sales
+       6 | Devlopment
+(6 rows)
+
+--query2
+create or replace function get_emp(department_name varchar)
+returns table(
+emp_id int,
+first_name varchar,
+last_name varchar,
+dept_id int,
+salary numeric,
+hire_date date
+)
+language plpgsql
+as  $$
+begin
+return query
+select e.emp_id,e.first_name,e.last_name,e.dept_id,e.salary,e.hire_date from employees e
+join department d
+on e.dept_id=d.dept_id
+where d.dept_name=department_name;
+end;
+$$;
+
+ select get_emp('IT');
+
+                get_emp
+---------------------------------------
+ (103,Muthu,Vel,3,55000.00,2025-08-29)
+(1 row)
+
+
+--query 3
+create or replace procedure add_salary(department_name varchar)
+language plpgsql
+as $$
+begin
+    update employees e
+    set salary = salary + salary * 0.1
+    from department d
+    where e.dept_id = d.dept_id
+     and d.dept_name = department_name;
+end;
+$$;
+
+
+call add_salary('IT');
+
+ emp_id | first_name | last_name | dept_id |  salary  | hire_date
+--------+------------+-----------+---------+----------+------------
+    101 | Arun       | Kumar     |       1 | 50000.00 | 2025-08-29
+    102 | Saranya    | Devi      |       2 | 60000.00 | 2025-08-29
+    103 | Muthu      | Vel       |       3 | 55000.00 | 2025-08-29
+    104 | Kalai      | Selvi     |       4 | 52000.00 | 2025-08-29
+    105 | Sureash    | Kumar     |       5 | 58000.00 | 2025-08-29
+(5 rows)
+
+--query 4
+create or replace function add_emp(
+emp_id int,
+first_name varchar,
+last_name varchar,
+dept_id int,
+salary numeric,
+hire_date date
+)
+returns void
+language plpgsql
+as $$
+begin
+insert into employees values(emp_id,first_name,last_name,dept_id,salary,hire_date);
+end;
+$$;
+
+select add_emp(106,'Tamil','Mathi',null,40000,'2025-08-29');
+
+ emp_id | first_name | last_name | dept_id |  salary  | hire_date
+--------+------------+-----------+---------+----------+------------
+    101 | Arun       | Kumar     |       1 | 50000.00 | 2025-08-29
+    102 | Saranya    | Devi      |       2 | 60000.00 | 2025-08-29
+    103 | Muthu      | Vel       |       3 | 55000.00 | 2025-08-29
+    104 | Kalai      | Selvi     |       4 | 52000.00 | 2025-08-29
+    105 | Sureash    | Kumar     |       5 | 58000.00 | 2025-08-29
+    106 | Tamil      | Mathi     |         | 40000.00 | 2025-08-29
+(6 rows)
+
+--query 5
+create or replace procedure del_dept()
+language plpgsql
+as $$
+begin
+delete from department d
+where not exists(select 1 from employees e where d.dept_id=e.dept_id);
+end;
+$$;
+
+call del_dept();
+
+ dept_id | dept_name
+---------+-----------
+       1 | HR
+       2 | Finance
+       3 | IT
+       4 | Marketing
+       5 | Sales
+(5 rows)
+
+--query 6
+create or replace function emp_count(department_name varchar)
+returns int
+language plpgsql
+as $$
+declare
+count_emp int;
+
+begin
+select count(e.emp_id) into count_emp from employees e
+join department d
+on e.dept_id=d.dept_id
+where d.dept_name=department_name;
+return count_emp;
+end;
+$$;
+
+select emp_count('IT');
+ emp_count
+-----------
+         2
+(1 row)
+
+
+--query 7
+create or replace function tot_salary(department_name varchar)
+returns numeric
+language plpgsql
+as $$
+declare 
+tot_sal numeric;
+begin
+select sum(e.salary) into tot_sal from employees e
+join department d
+on e.dept_id=d.dept_id
+where d.dept_name=department_name;
+return tot_sal;
+end;
+$$;
+
+select tot_salary('IT');
+
+ tot_salary
+------------
+   95000.00
+(1 row)
+
+--query 8
+create or replace function hire_emp(h_date date)
+returns table(
+emp_id int,
+first_name varchar,
+last_name varchar,
+dept_id int,
+salary numeric,
+hire_date date
+)
+language plpgsql
+as $$
+begin
+return query
+select e.emp_id,e.first_name,e.last_name,e.dept_id,e.salary,e.hire_date from employees e
+where e.hire_date>h_date;
+end;
+$$;
+
+select hire_emp('2025-08-19');
+
+                 hire_emp
+-------------------------------------------
+ (101,Arun,Kumar,1,50000.00,2025-08-29)
+ (102,Saranya,Devi,2,60000.00,2025-08-29)
+ (103,Muthu,Vel,3,55000.00,2025-08-29)
+ (104,Kalai,Selvi,4,52000.00,2025-08-29)
+ (105,Sureash,Kumar,5,58000.00,2025-08-29)
+ (106,Tamil,Mathi,3,40000.00,2025-08-29)
+(6 rows)
